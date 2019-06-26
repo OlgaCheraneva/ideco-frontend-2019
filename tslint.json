@@ -1,0 +1,10 @@
+{
+  "extends": "tslint:recommended",
+  "rules": {
+    "quotemark": false,
+    "member-access": [true, "no-public"],
+    "no-console": [true, "log"],
+    "trailing-comma": false,
+    "variable-name": [true, "ban-keywords", "check-format", "allow-leading-underscore"]
+  }
+}

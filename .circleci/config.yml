@@ -1,0 +1,53 @@
+version: 2.1
+jobs:
+  build:
+    docker:
+      # Все команды запускаются в изолированном Docker-контейнере
+      # Нам нужен с Node.js
+      - image: circleci/node:10
+    steps:
+      # Клонируем репозиторий
+      - checkout
+
+      # Устанавливаем зависимости
+      - run:
+          name: Install dependencies
+          command: npm run deps:all
+
+      # Собираем приложение
+      - run:
+          name: Build application
+          command: npm run build
+
+      # Проверяем приложение
+      - run:
+          name: Lint application (css, js, ts and dependencies)
+          command: npm run lint
+
+      # Деплоим статику
+      - run:
+          name: Deploy static files to Surge
+          command: npm run ci:surge
+
+      # Устанавливаем Docker
+      - setup_remote_docker
+
+      # Авторизуемся в Heroku
+      - run:
+          name: Login at Heroku Docker Registry
+          command: npm run ci:heroku:login
+
+      # Собираем Docker образ с приложением (docker build)
+      - run:
+          name: Build Docker image
+          command: npm run ci:heroku:build
+
+      # Отправляем его в Heroku (docker push)
+      - run:
+          name: Push Docker image to the Heroku
+          command: npm run ci:heroku:push
+
+      # Разворачиваем приложение из образа (docker run)
+      - run:
+          name: Run Docker container
+          command: npm run ci:heroku:release
